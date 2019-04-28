@@ -1,0 +1,70 @@
+package ${package.Controller};
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.king.blog.common.support.BaseController;
+import com.king.blog.common.wrapper.WrapMapper;
+import com.king.blog.common.wrapper.Wrapper;
+import ${package.Entity}.${entity};
+import ${package.Service}.${table.serviceName};
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+
+/**
+ * User: ${author} <p />
+ * Time: ${date}  <p />
+ * Version: V1.0  <p />
+ * Description: $!{table.comment} 前端控制器 <p />
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} extends BaseController {
+#end
+
+    @Autowired
+    private ${table.serviceName} ${table.serviceNameLowerCamelCase};
+
+    @RequestMapping("page")
+    public Wrapper page(Page<${table.entityName}> page, ${table.entityName} query) {
+        return WrapMapper.ok(${table.serviceNameLowerCamelCase}.page(page, new QueryWrapper<>(query)));
+    }
+
+    @RequestMapping("getById")
+    public Wrapper getById(String id) {
+        return WrapMapper.ok(${table.serviceNameLowerCamelCase}.getById(id));
+    }
+
+    @RequestMapping("saveOrUpdate")
+    public Wrapper saveOrUpdate(${table.entityName} ${table.entityNameLowerCamelCase}) {
+        if (StringUtils.isEmpty(${table.entityNameLowerCamelCase}.getId())) {
+            ${table.entityNameLowerCamelCase}.setId(IdWorker.getIdStr());
+        }
+        if (${table.serviceNameLowerCamelCase}.saveOrUpdate(${table.entityNameLowerCamelCase})) {
+            return WrapMapper.ok(${table.entityNameLowerCamelCase}.getId());
+        }
+        return WrapMapper.error();
+    }
+
+}
+#end
